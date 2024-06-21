@@ -15,16 +15,15 @@ datasource db {
 
 model User {
   id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  name  String
+  message Message[]
 }
 
-model Post {
+model Message {
   id        Int     @id @default(autoincrement())
-  title     String
   content   String?
-  published Boolean @default(false)
   author    User    @relation(fields: [authorId], references: [id])
   authorId  Int
+  createdAt DateTime @default(now())
+  published Boolean @default(false)
 }
