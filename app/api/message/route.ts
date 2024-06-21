@@ -24,18 +24,3 @@ export const POST = async (req: Request, res: NextResponse) => {
     });
     return NextResponse.json(messages);
 }
-
-/* export const PUT = async (
-  req: Request,
-  { params }: { params: { id: string } },
-  res: NextResponse
-) => {
-  const id: number = parseInt(params.id);
-  const { published } = await req.json();
-
-  const user = await prisma.message.update({
-    data: { published },
-    where: { id },
-  });
-  return NextResponse.json(user);
-}; */

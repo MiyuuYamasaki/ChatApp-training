@@ -4,6 +4,15 @@ import { PrismaClient } from "@prisma/client";
 import Link from "next/link";
 import { useParams, useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import { VscChevronLeft } from "react-icons/vsc";
+import { BsWechat } from "react-icons/bs";
+import {
+  RiAccountCircleLine,
+  RiAccountCircleFill,
+  RiSendPlaneFill,
+} from "react-icons/ri";
+import { RxCrossCircled } from "react-icons/rx";
+import { MdDriveFileRenameOutline } from "react-icons/md";
 
 const prisma = new PrismaClient();
 
@@ -23,6 +32,7 @@ export default function ChatPage() {
   const [content, setContent] = useState("");
   const [authorId, setAuterId] = useState<number>(1);
   const [published, setPublished] = useState<boolean>(false);
+  const [inputContent, setinputContent] = useState("");
 
   const router = useRouter();
 
@@ -40,8 +50,8 @@ export default function ChatPage() {
       },
       body: JSON.stringify({ content, authorId, published }),
     });
-    console.log(Response);
     fetchMessages();
+    setinputContent("");
   };
 
   const [messages, setmessages] = useState<Message[]>([]);
@@ -50,9 +60,7 @@ export default function ChatPage() {
   const fetchMessages = async () => {
     const res = await fetch("/api/message");
     const messages = await res.json();
-    console.log(messages);
     setmessages(messages);
-
   };
   //GET
   useEffect(() => {
@@ -72,50 +80,91 @@ export default function ChatPage() {
   //EDIT
   const handleUpdate = async (id: number) => {
     const confirmed = window.confirm("Would you like to delete this message?");
-    if(confirmed) {
+    if (confirmed) {
       const Response = await fetch(`/api/message/${id}`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ published: true }),
-    });
-    fetchMessages();
-  }
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ published: true }),
+      });
+      fetchMessages();
+    }
   };
 
   return (
     <div className="flex flex-col h-screen">
       <header className="bg-background border-b px-4 py-3 flex items-center justify-between">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 flex-grow-1">
           <span
             onClick={handleClick}
-            className="i-ep-d-arrow-left w-10 h-10 bg-sky-300"
-          ></span>
-          <div className="font-bold text-xl text-gray-600">Chat Page</div>
-          <span className="i-ep-chat-dot-round w-6 h-6 bg-gray-600"></span>
+            className="text-3xl text-gray-500 font-bold hover:text-sky-500"
+            title="Back to home"
+          >
+            <VscChevronLeft />
+          </span>
+          <div className="flex font-bold text-xl text-gray-600 justify-center w-full">
+            Chat Page
+            <BsWechat className="flex text-2xl text-sky-300" />
+          </div>
         </div>
         <div className="grid">
-          <div>
-            <p className="text-sm text-gray-500">Select user</p>
-          <select
-            onChange={(event) => {
-              const selectedUserName = event.target.value;
-              const selectedUser = users.find((user) => user.name === selectedUserName);
-              if (selectedUser) {
-                setAuterId(selectedUser.id);
-              }
-            }}
-            name="authorId"
-            id="autherId"
-            className="row-start-1 col-start-1 bg-slate-50 dark:bg-slate-800 text-sm border border-gray-300 rounded-md px-5 py-1"
-          >
-            <option value={"A"}>A</option>
-            <option value={"B"}>B</option>
-          </select>
+          <div className="flex">
+            <div>
+              <select
+                onChange={(event) => {
+                  const selectedUserName = event.target.value;
+                  const selectedUser = users.find(
+                    (user) => user.name === selectedUserName
+                  );
+                  if (selectedUser) {
+                    setAuterId(selectedUser.id);
+                  }
+                }}
+                name="authorId"
+                id="autherId"
+                title="Select user"
+                className="row-start-1 col-start-1 bg-slate-50 text-sm border border-gray-300 rounded-md px-5 py-1"
+              >
+                {users.map((user) => (
+                  <option key={user.id} value={user.name}>
+                    {user.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <span
+              className="text-3xl text-gray-600"
+              
+            >
+              <MdDriveFileRenameOutline />
+            </span>
           </div>
         </div>
       </header>
+      <div className="bg-background border-t px-4 py-3 flex items-center gap-2 bg-gray-100">
+        <textarea
+          onChange={(event) => {
+            setContent(event.target.value);
+            setinputContent(event.target.value);
+          }}
+          value={inputContent}
+          name="content"
+          id="content"
+          className="w-full p-2"
+          placeholder={inputContent ? "" : "Please enter a message."}
+        ></textarea>
+        <span
+          onClick={() => {
+            handleSubmit();
+            setContent("");
+          }}
+          className="text-4xl hover:text-sky-600 cursor-pointer"
+          title="Send"
+        >
+          <RiSendPlaneFill />
+        </span>
+      </div>
       <div className="flex-1 overflow-auto p-4">
         <div className="grid gap-3">
           {messages.map((message) => {
@@ -134,22 +183,48 @@ export default function ChatPage() {
             return (
               <div key={message.id}>
                 {!ispublished && (
-                  <div className={`flex items-start gap-3 ${isAuthorA ? "justify-end" : "justify-start"}`}>
+                  <div
+                    className={`flex items-start gap-3 ${
+                      isAuthorA ? "justify-end" : "justify-start"
+                    }`}
+                  >
                     {!isAuthorA && (
-                      <span className="i-fa6-solid-b w-6 h-6 bg-gray-600"></span>
+                      <div className="flex flex-col justify-center items-center">
+                        <span className="text-3xl text-gray-600">
+                          <RiAccountCircleFill />
+                        </span>
+                        <p className="text-xs">
+                          {user ? user.name : "Unknown User"}
+                        </p>
+                      </div>
                     )}
-                    <div className={`bg-muted rounded-lg p-3 max-w-[80%]  ${isAuthorA ? 'bg-sky-200' : 'bg-gray-100'}`}>
+                    <div
+                      className={`bg-muted rounded-lg p-3 max-w-[80%]  shadow-lg shadow-gray-500/40 ${
+                        isAuthorA ? "bg-sky-200" : "bg-gray-100"
+                      }`}
+                    >
                       <p>{message.content}</p>
-                      <div className=" justify-end items-center mt-1 text-xs text-muted-foreground">
-                        <span className="mr-3 ">{formattedDateTime}</span>
+                      <div className="flex justify-end items-center mt-1 text-xs text-muted-foreground">
+                        <span className="mr-3">{formattedDateTime}</span>
                         <span
                           onClick={() => handleUpdate(message.id)}
-                          className="flex i-ep-circle-close-filled w-3 h-3 bg-gray-600 hover:bg-white"
-                        ></span>
+                          className="flex text-gray-600 hover:text-white"
+                          title="Delete"
+                        >
+                          <RxCrossCircled />
+                        </span>
                       </div>
                     </div>
+
                     {isAuthorA && (
-                      <span className="i-fa6-solid-a w-6 h-6 bg-gray-600"></span>
+                      <div className="flex flex-col justify-center items-center">
+                        <span className="text-3xl text-gray-600">
+                          <RiAccountCircleLine />
+                        </span>
+                        <p className="text-xs">
+                          {user ? user.name : "Unknown User"}
+                        </p>
+                      </div>
                     )}
                   </div>
                 )}
@@ -157,19 +232,6 @@ export default function ChatPage() {
             );
           })}
         </div>
-      </div>
-      <div className="bg-background border-t px-4 py-3 flex items-center gap-2 bg-gray-100">
-        <textarea
-          onChange={(event) => {
-            setContent(event.target.value);
-          }}
-          name="content"
-          id="content"
-          className="w-full p-2"
-        ></textarea>
-        <span 
-        onClick={handleSubmit}
-        className="i-ep-position w-10 h-10 bg-gray-500 hover:bg-sky-500 "></span>
       </div>
     </div>
   );
