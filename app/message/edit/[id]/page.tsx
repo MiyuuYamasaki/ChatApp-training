@@ -59,6 +59,7 @@ export default function EditPage() {
               type="text"
               name="name"
               id="name"
+              autoComplete="name"
               value={name}
               className="rounded-md  border-2 p-2"
             />
