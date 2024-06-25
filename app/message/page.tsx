@@ -41,6 +41,11 @@ export default function ChatPage() {
     router.push("/");
   };
 
+  //edit page
+  const handleeditClick = () => {
+    router.push(`/message/edit/${authorId}`);
+  };
+
   //CREATE
   const handleSubmit = async () => {
     const Response = await fetch("/api/message", {
@@ -133,10 +138,10 @@ export default function ChatPage() {
                 ))}
               </select>
             </div>
-            <span
-              className="text-3xl text-gray-600"
-              
-            >
+            <span 
+            onClick={handleeditClick}
+            className="text-3xl text-gray-600"
+            title="Edit name">
               <MdDriveFileRenameOutline />
             </span>
           </div>
