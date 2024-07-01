@@ -132,7 +132,7 @@ export default function ChatPage() {
                 className="row-start-1 col-start-1 bg-slate-50 text-sm border border-gray-300 rounded-md px-5 py-1"
               >
                 {users.map((user) => (
-                  <option key={user.id} value={user.name}>
+                  <option key={user.name} value={user.name}>
                     {user.name}
                   </option>
                 ))}
